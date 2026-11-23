@@ -1,0 +1,69 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>INC0012345 | Incident | ServiceNow</title>
+<style>
+  /* Hostile global styles to prove Shadow DOM isolation */
+  * { font-family: "Comic Sans MS" !important; }
+  div { border: 1px dotted red; }
+  button { background: lime !important; }
+  body { font-size: 22px; margin: 20px; }
+</style>
+<script>
+  // Simulate Prototype.js' Array#toJSON patch which breaks native JSON.stringify
+  Array.prototype.toJSON = function () { return JSON.stringify(this.slice()); };
+  window.__submits = 0;
+</script>
+</head>
+<body>
+<form id="incident.do" onsubmit="window.__submits++; return false;">
+  <h1>Incident INC0012345</h1>
+  <input id="incident.number" value="INC0012345">
+  <input type="hidden" id="incident.caller_id" value="681ccaf9c0a8016400b98a06818d57c7">
+  <input id="sys_display.incident.caller_id" value="Abel Tuter">
+  <input type="hidden" id="incident.u_affected_user" value="">
+  <input id="sys_display.incident.u_affected_user" value="">
+  <input type="hidden" id="incident.cmdb_ci" value="b0c25d1bc0a800090168be1bfcdcd759">
+  <input id="sys_display.incident.cmdb_ci" value="LT-AMS-04521">
+  <select id="incident.state"><option value="1">New</option><option value="2" selected>In Progress</option><option value="3">On Hold</option></select>
+  <select id="incident.priority"><option value="2" selected>2 - High</option></select>
+  <select id="incident.impact"><option value="2" selected>2 - Medium</option></select>
+  <select id="incident.urgency"><option value="1" selected>1 - High</option></select>
+  <input type="hidden" id="incident.assignment_group" value="8a4dde73c6112278017a6a4baf547aa7">
+  <input id="sys_display.incident.assignment_group" value="Service Desk NL">
+  <input type="hidden" id="incident.assigned_to" value="46d44a23a9fe19810012d100cca80666">
+  <input id="sys_display.incident.assigned_to" value="Beth Anglin">
+  <input id="incident.short_description" value="VPN keeps disconnecting when working from home">
+  <textarea id="incident.description">Since this morning the GlobalProtect VPN drops every 10 minutes. Outlook and Teams disconnect too.</textarea>
+  <textarea id="incident.work_notes" style="display:none"></textarea>
+  <textarea id="incident.comments" style="display:none"></textarea>
+  <div class="activity-stream">
+    <textarea id="activity-stream-work_notes-textarea" aria-label="Work notes"></textarea>
+    <textarea id="activity-stream-comments-textarea" aria-label="Additional comments"></textarea>
+  </div>
+  <button type="submit" id="sysverb_update">Update</button>
+</form>
+<script>
+  // Minimal GlideForm emulation with the same API surface as ServiceNow's g_form.
+  window.g_ck = 'mock-session-token-1234567890';
+  window.g_user = { firstName: 'Umut', lastName: 'Tester', fullName: 'Umut Tester', userName: 'umut.tester' };
+  var TABLE = 'incident';
+  var FIELDS = ['number','caller_id','u_affected_user','cmdb_ci','state','priority','impact','urgency','assignment_group','assigned_to','short_description','description','work_notes','comments'];
+  window.g_form = {
+    getTableName: function () { return TABLE; },
+    getUniqueValue: function () { return 'e8caedcbc0a80164017df472f39eaed1'; },
+    hasField: function (f) { return FIELDS.indexOf(f) >= 0; },
+    getControl: function (f) { return document.getElementById(TABLE + '.' + f); },
+    getDisplayBox: function (f) { return document.getElementById('sys_display.' + TABLE + '.' + f); },
+    getOption: function (f, v) { var c = this.getControl(f); if (!c || !c.options) return null; for (var i=0;i<c.options.length;i++) if (c.options[i].value==v) return c.options[i]; return null; },
+    getValue: function (f) { var c = this.getControl(f); return c ? c.value : ''; },
+    setValue: function (f, v) {
+      var c = this.getControl(f); if (!c) return; c.value = v;
+      var vis = document.getElementById('activity-stream-' + f + '-textarea'); if (vis) vis.value = v;
+    },
+    isNewRecord: function () { return false; }
+  };
+</script>
+</body>
+</html>

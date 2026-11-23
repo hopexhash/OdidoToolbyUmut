@@ -1,0 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html { background: #f7f8fa; color-scheme: light; }
+html.tk-dark { background: #0d0f13; color-scheme: dark; }
+body { margin: 0; font-family: 'Segoe UI Variable Text', 'Segoe UI', Inter, system-ui, -apple-system, Roboto, sans-serif; -webkit-font-smoothing: antialiased; }

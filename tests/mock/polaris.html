@@ -1,0 +1,25 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>ServiceNow</title>
+<style> body { margin:0; font: 14px sans-serif; } </style>
+</head>
+<body>
+<script>
+  window.g_ck = 'mock-session-token-1234567890';
+  window.NOW = { user: { fullName: 'Umut Tester' } };
+  class PolarisLayout extends HTMLElement {
+    constructor() {
+      super();
+      const root = this.attachShadow({ mode: 'open' });
+      const inner = document.createElement('macroponent-f51912f4c700201072b211d4d8c26010');
+      const r2 = inner.attachShadow({ mode: 'open' });
+      r2.innerHTML = '<header style="height:48px;background:#032d42;color:#fff">Next Experience</header>' +
+        '<iframe id="gsft_main" name="gsft_main" style="width:100%;height:600px;border:0" src="/incident.do?sys_id=e8caedcbc0a80164017df472f39eaed1"></iframe>';
+      root.appendChild(inner);
+    }
+  }
+  customElements.define('sn-polaris-layout', PolarisLayout);
+  document.body.appendChild(document.createElement('sn-polaris-layout'));
+</script>
+</body>
+</html>

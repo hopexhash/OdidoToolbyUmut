@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>INC0012345 | Service Operations Workspace</title></head>
+<body>
+<script>
+  window.g_ck = 'mock-session-token-1234567890';
+  window.NOW = { user: { fullName: 'Umut Tester' } };
+  class NowTextarea extends HTMLElement {
+    constructor() {
+      super();
+      const r = this.attachShadow({ mode: 'open' });
+      const ta = document.createElement('textarea');
+      ta.setAttribute('placeholder', this.getAttribute('placeholder'));
+      ta.setAttribute('aria-label', this.getAttribute('placeholder'));
+      ta.style.cssText = 'width:400px;height:80px';
+      ta.addEventListener('input', () => { window.__wsModel = window.__wsModel || {}; window.__wsModel[this.getAttribute('placeholder')] = ta.value; });
+      r.appendChild(ta);
+    }
+  }
+  customElements.define('now-textarea', NowTextarea);
+  class RecordPage extends HTMLElement {
+    constructor() {
+      super();
+      const r = this.attachShadow({ mode: 'open' });
+      r.innerHTML = '<h2>INC0012345</h2><now-textarea placeholder="Work notes"></now-textarea>';
+    }
+  }
+  customElements.define('sn-workspace-record', RecordPage);
+  document.body.appendChild(document.createElement('sn-workspace-record'));
+</script>
+</body>
+</html>

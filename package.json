@@ -1,0 +1,39 @@
+{
+  "name": "itsm-toolkit",
+  "private": true,
+  "version": "1.0.0",
+  "description": "ITSM Toolkit \u2013 ServiceNow productivity overlay delivered as a bookmarklet",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "npm run typecheck && npm run build:site && npm run build:toolkit && node scripts/postbuild.mjs",
+    "build:site": "vite build",
+    "build:toolkit": "vite build --config vite.toolkit.config.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:e2e": "node tests/e2e.mjs",
+    "preview": "node scripts/serve.mjs"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^1.12.0",
+    "lucide-react": "^0.460.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "zustand": "^4.5.5"
+  },
+  "devDependencies": {
+    "@types/node": "^22.9.0",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.15",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.11",
+    "vitest": "^2.1.5"
+  },
+  "itsmToolkit": {
+    "bookmarkletProtocol": 2
+  }
+}
