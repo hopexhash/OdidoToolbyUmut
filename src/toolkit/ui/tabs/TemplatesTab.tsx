@@ -1,10 +1,9 @@
 import { useMemo, useRef, useState } from 'react';
 import {
-  ArrowUpRight, CalendarCheck, Check, CheckCircle2, Download, Eye, FilePlus2, Hourglass, Laptop, AppWindow, Pencil, RotateCcw, Search, Star, Trash2, Upload, Wifi,
+  ArrowUpRight, CalendarCheck, Check, CheckCircle2, Download, Eye, FilePlus2, FileText, Hourglass, Laptop, AppWindow, Pencil, Search, Star, Trash2, Upload, Wifi,
 } from 'lucide-react';
 import { buildVariables } from '../../core/generator';
 import { safeStringify } from '../../core/safeJson';
-import { DEFAULT_TEMPLATES } from '../../core/templates/defaults';
 import { CATEGORIES, newId, renderTemplate, validateImport, VARIABLES, type Template, type TemplateCategory } from '../../core/templates/engine';
 import { useLang, useT } from '../../i18n';
 import { useStore } from '../../state/store';
@@ -116,6 +115,7 @@ export function TemplatesTab() {
 
   return (
     <div className="space-y-5">
+      <input ref={fileRef} type="file" accept="application/json,.json" className="hidden" onChange={(e) => (e.target.files?.[0] && doImport(e.target.files[0]), (e.target.value = ''))} />
       <SectionHeader
         step={t('Step 4')}
         title={t('Choose a template')}
@@ -127,6 +127,8 @@ export function TemplatesTab() {
         }
       />
 
+      {templates.length > 0 && (
+      <>
       <div className="relative">
         <Search size={18} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-ink-400" />
         <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder={t('Search templates, e.g. "VPN" or "password"')} aria-label={t('Search templates')} className="!h-12 !rounded-2xl !pl-11 !text-[14px] shadow-card" />
@@ -141,6 +143,8 @@ export function TemplatesTab() {
           </Pill>
         ))}
       </div>
+      </>
+      )}
 
       {favorites.length > 0 && (
         <section>
@@ -152,7 +156,24 @@ export function TemplatesTab() {
       )}
       <section>
         {favorites.length > 0 && <h3 className="mb-3 text-[13px] font-semibold text-ink-700 dark:text-ink-300">{t('All templates')}</h3>}
-        {list.length === 0 ? (
+        {templates.length === 0 ? (
+          <div className="rounded-2xl border border-dashed border-ink-300 bg-white dark:border-ink-700 dark:bg-ink-900">
+            <Empty icon={<FileText size={24} />} title={t('No templates yet')}>
+              {t('Import your templates file, or create your first template.')}
+              <div className="mt-5 flex flex-wrap justify-center gap-2">
+                <Button variant="primary" icon={<Upload size={16} />} onClick={() => fileRef.current?.click()}>
+                  {t('Import templates')}
+                </Button>
+                <Button
+                  icon={<FilePlus2 size={16} />}
+                  onClick={() => setEditing({ id: newId(), name: '', category: 'Software', favorite: false, workNotes: '', commentEn: '', commentNl: '', tags: [], updatedAt: Date.now() })}
+                >
+                  {t('New template')}
+                </Button>
+              </div>
+            </Empty>
+          </div>
+        ) : list.length === 0 ? (
           <Empty icon={<Search size={24} />} title={t('No templates found')}>
             {t('Try a different word or category.')}
           </Empty>
@@ -161,25 +182,14 @@ export function TemplatesTab() {
         )}
       </section>
 
-      <div className="flex flex-wrap items-center gap-2 pt-2 text-[12.5px] text-ink-500">
-        <input ref={fileRef} type="file" accept="application/json,.json" className="hidden" onChange={(e) => e.target.files?.[0] && doImport(e.target.files[0])} />
+      {templates.length > 0 && <div className="flex flex-wrap items-center gap-2 pt-2 text-[12.5px] text-ink-500">
         <Button size="sm" variant="ghost" icon={<Upload size={14} />} onClick={() => fileRef.current?.click()}>
           {t('Import templates')}
         </Button>
         <Button size="sm" variant="ghost" icon={<Download size={14} />} onClick={() => download('itsm-toolkit-templates.json', safeStringify({ templates }, 2))}>
           {t('Export templates')}
         </Button>
-        <Button
-          size="sm"
-          variant="ghost"
-          icon={<RotateCcw size={14} />}
-          onClick={() => {
-            if (confirm(t('Restore the built-in templates? Your own templates are kept.'))) setTemplates([...DEFAULT_TEMPLATES, ...templates.filter((x) => !x.id.startsWith('d-'))]);
-          }}
-        >
-          {t('Restore built-in templates')}
-        </Button>
-      </div>
+      </div>}
 
       <NextStep to="output" label="Next: review your notes" hint="Your notes are ready on the right." />
 

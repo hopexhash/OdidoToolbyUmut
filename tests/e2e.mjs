@@ -130,6 +130,13 @@ const tk = (page) => page.locator('#itsm-toolkit-host');
   await tk(page).getByRole('button', { name: 'Certificate renewed' }).click();
   // Step 4 — template card
   await tk(page).getByRole('button', { name: 'Next: choose a template' }).click();
+  await tk(page).locator('text=No templates yet').waitFor({ timeout: 3000 });
+  check('templates: start empty', (await tk(page).locator('article').count()) === 0);
+  await page.waitForTimeout(350);
+  await page.screenshot({ path: join(shots, '3a-templates-empty.png') });
+  await tk(page).locator('input[type=file]').setInputFiles(join(root, 'docs', 'example-templates.json'));
+  await tk(page).locator('article', { hasText: 'VPN connectivity' }).waitFor({ timeout: 3000 });
+  check('templates: import from JSON file', (await tk(page).locator('article').count()) === 16);
   await tk(page).locator('article', { hasText: 'VPN connectivity' }).getByRole('button', { name: 'Use template' }).click();
   await page.waitForTimeout(400);
   await page.screenshot({ path: join(shots, '3-templates.png') });

@@ -248,6 +248,8 @@ export const NL: Record<string, string> = {
   'All': 'Alle',
   'Favorites': 'Favorieten',
   'All templates': 'Alle sjablonen',
+  'No templates yet': 'Nog geen sjablonen',
+  'Import your templates file, or create your first template.': 'Importeer je sjablonenbestand of maak je eerste sjabloon.',
   'No templates found': 'Geen sjablonen gevonden',
   'Try a different word or category.': 'Probeer een ander woord of een andere categorie.',
   'Import templates': 'Sjablonen importeren',

@@ -5,7 +5,6 @@ import { loadSettings, saveSettings, type Settings } from '../core/settings';
 import { extractTicket, type TicketSnapshot } from '../core/sn/extract';
 import { safeStringify } from '../core/safeJson';
 import { storage } from '../core/storage';
-import { DEFAULT_TEMPLATES } from '../core/templates/defaults';
 import type { Template } from '../core/templates/engine';
 
 export type TabId = 'ticket' | 'contact' | 'update' | 'templates' | 'assistant' | 'settings';
@@ -55,7 +54,13 @@ interface State {
   dismissToast(id: number): void;
 }
 
-const loadTemplates = (): Template[] => storage.get<Template[] | null>('templates', null) || DEFAULT_TEMPLATES;
+/** Starts empty: technicians import their own templates. Old built-in examples (id "d-…") are removed. */
+const loadTemplates = (): Template[] => {
+  const saved = storage.get<Template[] | null>('templates', null) || [];
+  const own = saved.filter((t) => !t.id.startsWith('d-'));
+  if (own.length !== saved.length) storage.set('templates', own);
+  return own;
+};
 const draftKeyFor = (s: TicketSnapshot | null) => (s?.sysId || s?.fields.number?.value || 'manual');
 
 let toastSeq = 0;

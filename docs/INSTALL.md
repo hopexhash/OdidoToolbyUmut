@@ -66,6 +66,8 @@ Journal insertion selectors (Workspace) are under *Settings → ServiceNow → J
 
 ## 6. Template JSON format
 
+The toolkit starts with **no templates**. Import your own file via *Templates → Import templates*. A complete example with 16 templates is in [`docs/example-templates.json`](example-templates.json).
+
 ```json
 {
   "templates": [

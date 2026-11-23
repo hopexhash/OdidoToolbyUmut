@@ -1,0 +1,201 @@
+{
+  "templates": [
+    {
+      "id": "example-hw-swap",
+      "name": "Device replacement",
+      "category": "Hardware",
+      "favorite": false,
+      "workNotes": "Hardware defect confirmed on {{configuration_item|the device}}. Replacement device arranged for {{user_name}}.",
+      "commentEn": "We have confirmed a hardware defect and arranged a replacement device for you.",
+      "commentNl": "We hebben een hardwaredefect vastgesteld en een vervangend apparaat voor u geregeld.",
+      "tags": [
+        "laptop",
+        "swap"
+      ]
+    },
+    {
+      "id": "example-hw-diag",
+      "name": "Hardware diagnostics",
+      "category": "Hardware",
+      "favorite": false,
+      "workNotes": "Ran hardware diagnostics on {{configuration_item|the device}} with {{user_name}} via {{contact_method}}.",
+      "commentEn": "We have run diagnostics on your device to determine the cause of the issue.",
+      "commentNl": "We hebben een diagnose op uw apparaat uitgevoerd om de oorzaak van het probleem te bepalen.",
+      "tags": [
+        "diagnostics"
+      ]
+    },
+    {
+      "id": "example-hw-dock",
+      "name": "Docking station / monitor",
+      "category": "Hardware",
+      "favorite": false,
+      "workNotes": "Checked docking station, cabling and display settings for {{user_name}}. Firmware/driver status verified.",
+      "commentEn": "We have checked your docking station and monitor setup.",
+      "commentNl": "We hebben uw dockingstation en monitoropstelling gecontroleerd.",
+      "tags": [
+        "dock",
+        "monitor"
+      ]
+    },
+    {
+      "id": "example-sw-install",
+      "name": "Software installation",
+      "category": "Software",
+      "favorite": false,
+      "workNotes": "Software requested by {{user_name}} installed/pushed via the software deployment tool on {{configuration_item|the device}}.",
+      "commentEn": "The requested software has been installed on your device. Please restart your device if it does not appear.",
+      "commentNl": "De aangevraagde software is op uw apparaat geïnstalleerd. Start uw apparaat opnieuw op als het niet zichtbaar is.",
+      "tags": [
+        "install"
+      ]
+    },
+    {
+      "id": "example-sw-outlook",
+      "name": "Outlook / Office issue",
+      "category": "Software",
+      "favorite": false,
+      "workNotes": "Investigated Outlook/Office issue with {{user_name}}. Profile, add-ins and cached mode checked.",
+      "commentEn": "We have investigated the issue with Outlook/Office together with you.",
+      "commentNl": "We hebben samen met u het probleem met Outlook/Office onderzocht.",
+      "tags": [
+        "outlook",
+        "office"
+      ]
+    },
+    {
+      "id": "example-sw-account",
+      "name": "Account unlocked / password reset",
+      "category": "Software",
+      "favorite": false,
+      "workNotes": "Identity of {{user_name}} verified according to procedure. Account unlocked / password reset initiated.",
+      "commentEn": "Your account has been unlocked. You can now sign in again.",
+      "commentNl": "Uw account is ontgrendeld. U kunt nu weer inloggen.",
+      "tags": [
+        "account",
+        "password"
+      ]
+    },
+    {
+      "id": "example-nw-vpn",
+      "name": "VPN connectivity",
+      "category": "Network",
+      "favorite": false,
+      "workNotes": "Troubleshot VPN connectivity with {{user_name}}: client version, certificate and network connection checked.",
+      "commentEn": "We have checked your VPN connection together with you.",
+      "commentNl": "We hebben samen met u uw VPN-verbinding gecontroleerd.",
+      "tags": [
+        "vpn"
+      ]
+    },
+    {
+      "id": "example-nw-wifi",
+      "name": "Wi-Fi / network",
+      "category": "Network",
+      "favorite": false,
+      "workNotes": "Checked Wi-Fi/network connectivity for {{configuration_item|the device}}: adapter, drivers, IP configuration and profile.",
+      "commentEn": "We have checked your network/Wi-Fi connection.",
+      "commentNl": "We hebben uw netwerk-/wifi-verbinding gecontroleerd.",
+      "tags": [
+        "wifi",
+        "network"
+      ]
+    },
+    {
+      "id": "example-ap-plan",
+      "name": "Appointment scheduled",
+      "category": "Appointments",
+      "favorite": false,
+      "workNotes": "Appointment scheduled with {{user_name}} on {{followup_date}} at {{followup_time}} via {{contact_method}}.",
+      "commentEn": "As agreed, we have scheduled an appointment on {{followup_date}} at {{followup_time}}.",
+      "commentNl": "Zoals afgesproken hebben we een afspraak ingepland op {{followup_date}} om {{followup_time}}.",
+      "tags": [
+        "appointment"
+      ]
+    },
+    {
+      "id": "example-ap-noshow",
+      "name": "Appointment – user not available",
+      "category": "Appointments",
+      "favorite": false,
+      "workNotes": "Appointment attempt: {{user_name}} not available at the agreed time. New attempt planned.",
+      "commentEn": "Unfortunately we could not reach you at the agreed time. We will try again.",
+      "commentNl": "Helaas konden we u op het afgesproken tijdstip niet bereiken. We proberen het opnieuw.",
+      "tags": [
+        "appointment"
+      ]
+    },
+    {
+      "id": "example-pd-user",
+      "name": "Pending – awaiting user",
+      "category": "Pending",
+      "favorite": false,
+      "workNotes": "Ticket set to pending: awaiting response from {{user_name}}.",
+      "commentEn": "We are waiting for your response so we can continue with your request.",
+      "commentNl": "We wachten op uw reactie zodat we verder kunnen met uw melding.",
+      "tags": [
+        "pending"
+      ]
+    },
+    {
+      "id": "example-pd-vendor",
+      "name": "Pending – awaiting supplier",
+      "category": "Pending",
+      "favorite": false,
+      "workNotes": "Case logged with supplier; awaiting supplier response.",
+      "commentEn": "We are waiting for feedback from our supplier and will update you as soon as we hear back.",
+      "commentNl": "We wachten op terugkoppeling van onze leverancier en houden u op de hoogte.",
+      "tags": [
+        "vendor"
+      ]
+    },
+    {
+      "id": "example-es-2nd",
+      "name": "Escalation to 2nd line",
+      "category": "Escalation",
+      "favorite": false,
+      "workNotes": "Escalated to {{assignment_group|2nd line}} after first-line troubleshooting. All findings documented above.",
+      "commentEn": "Your ticket has been forwarded to a specialised team who will contact you.",
+      "commentNl": "Uw melding is doorgezet naar een gespecialiseerd team dat contact met u opneemt.",
+      "tags": [
+        "escalation"
+      ]
+    },
+    {
+      "id": "example-es-major",
+      "name": "Possible major incident",
+      "category": "Escalation",
+      "favorite": false,
+      "workNotes": "Multiple users affected. Service desk lead / major incident manager informed. Linking related tickets.",
+      "commentEn": "We are aware of a wider disruption and are working on it with priority.",
+      "commentNl": "We zijn op de hoogte van een bredere verstoring en werken hier met prioriteit aan.",
+      "tags": [
+        "major"
+      ]
+    },
+    {
+      "id": "example-rs-solved",
+      "name": "Resolved – confirmed by user",
+      "category": "Resolution",
+      "favorite": false,
+      "workNotes": "Issue resolved. {{user_name}} confirmed via {{contact_method}} that everything works as expected.",
+      "commentEn": "Your issue has been resolved, as you confirmed. If the issue returns, simply reply to this ticket.",
+      "commentNl": "Uw probleem is opgelost, zoals u heeft bevestigd. Mocht het probleem terugkomen, reageer dan op deze melding.",
+      "tags": [
+        "resolved"
+      ]
+    },
+    {
+      "id": "example-rs-noreply",
+      "name": "Resolved – no response",
+      "category": "Resolution",
+      "favorite": false,
+      "workNotes": "No response from {{user_name}} after multiple contact attempts. Ticket resolved according to procedure.",
+      "commentEn": "We have not been able to reach you after several attempts and will resolve this ticket. Reply to reopen it if needed.",
+      "commentNl": "We hebben u na meerdere pogingen niet kunnen bereiken en lossen deze melding op. Reageer om de melding te heropenen indien nodig.",
+      "tags": [
+        "resolved"
+      ]
+    }
+  ]
+}
