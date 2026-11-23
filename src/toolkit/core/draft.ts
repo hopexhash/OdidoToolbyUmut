@@ -50,6 +50,10 @@ export interface Draft {
   /** Non-null when the technician edited the generated text by hand. */
   workNotesManual: string | null;
   commentsManual: string | null;
+  /** Set after a successful INSERT IN TICKET. */
+  insertedAt: number | null;
+  /** Set once the technician opened the generated notes. */
+  reviewed: boolean;
 }
 
 export const emptyDraft = (lang: Lang): Draft => ({
@@ -57,13 +61,15 @@ export const emptyDraft = (lang: Lang): Draft => ({
   contact: { method: '', outcome: '', followDate: '', followTime: '', pendingReason: '', note: '' },
   update: { templateId: null, actions: [], updateText: '', customerUpdate: '', nextSteps: '', suggestions: [] },
   hardware: {
-    include: false, requestType: 'Replacement', deviceType: 'Laptop', model: '', serial: '', assetTag: '', oldSerial: '',
-    deliveryMethod: 'Courier (POD)', carrier: '', podReference: '', address: '', deliveryDate: '', timeSlot: '',
+    include: false, requestType: '', deviceType: '', model: '', serial: '', assetTag: '', oldSerial: '',
+    deliveryMethod: '', carrier: '', podReference: '', address: '', deliveryDate: '', timeSlot: '',
     backupConfirmed: false, notes: '',
   },
   commentLang: lang,
   workNotesManual: null,
   commentsManual: null,
+  insertedAt: null,
+  reviewed: false,
 });
 
 export interface PendingReason {

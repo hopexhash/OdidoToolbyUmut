@@ -52,7 +52,7 @@ const check = (name, ok, info = '') => {
 const browser = await chromium.launch();
 
 async function newPage() {
-  const ctx = await browser.newContext({ viewport: { width: 1600, height: 1000 } });
+  const ctx = await browser.newContext({ viewport: { width: 1600, height: 1000 }, locale: 'en-US' });
   const page = await ctx.newPage();
   const restCalls = [];
   page.on('pageerror', (e) => console.log('  [pageerror]', e.message));
@@ -106,55 +106,74 @@ const tk = (page) => page.locator('#itsm-toolkit-host');
   check('classic: REST used session token', restCalls.length > 0 && restCalls.every((c) => c.token === 'mock-session-token-1234567890'));
   const vals = await tk(page).locator('input').evaluateAll((els) => els.map((e) => e.value));
   check('classic: affected user falls back to caller (Abel Tuter)', vals.includes('Abel Tuter'));
-  check('classic: phone resolved from user record', vals.includes('+31 6 1234 5678'), vals.slice(0, 14).join(' | '));
-  check('classic: CI / state / priority read via g_form', vals.includes('LT-AMS-04521') && vals.includes('In Progress') && vals.includes('2 - High'));
-  check('classic: isolation — host page CSS did not leak (font)', !(await tk(page).locator('text=ITSM Toolkit').first().evaluate((e) => getComputedStyle(e).fontFamily)).includes('Comic'));
+  check('classic: phone resolved from user record', vals.includes('+31 6 1234 5678'), vals.slice(0, 6).join(' | '));
+  check('classic: CI / state / priority read via g_form', vals.includes('LT-AMS-04521') && t.includes('In Progress') && t.includes('2 - High'));
+  const font = await tk(page).locator('text=ITSM Toolkit').first().evaluate((e) => getComputedStyle(e).fontFamily);
+  check('design: Poppins is the UI font (host page CSS did not leak)', font.includes('Poppins') && !font.includes('Comic'), font);
+  const fontLoaded = await page.evaluate(async () => { await document.fonts.ready; return document.fonts.check('600 14px "ITSMTK Poppins"'); });
+  check('design: embedded Poppins font loaded', fontLoaded);
+  await page.waitForTimeout(400);
   await page.screenshot({ path: join(shots, '1-classic-ticket.png') });
 
-  // Contact & follow-up
-  await tk(page).getByRole('button', { name: 'Contact & Follow-up' }).click();
-  await tk(page).getByRole('button', { name: /Microsoft Teams/ }).first().click();
-  await tk(page).getByRole('button', { name: 'Reached', exact: true }).click();
+  // Step 2 — contact
+  await tk(page).getByRole('button', { name: 'Contact User' }).click();
+  await tk(page).getByRole('radio', { name: /Microsoft Teams/ }).click();
+  await tk(page).getByRole('button', { name: 'Reached the user' }).click();
   await tk(page).getByRole('button', { name: 'Next workday' }).click();
   await tk(page).getByRole('button', { name: '10:30' }).click();
-  await tk(page).locator('select').first().selectOption('monitoring');
-  // Update details
-  await tk(page).getByRole('button', { name: 'Update Details' }).click();
-  await tk(page).getByText('VPN connectivity', { exact: true }).click();
+  await tk(page).getByRole('button', { name: 'Why is the ticket waiting?' }).click();
+  await tk(page).getByRole('option', { name: 'Monitoring / awaiting confirmation' }).click();
+  await page.waitForTimeout(300);
+  await page.screenshot({ path: join(shots, '2-contact.png') });
+  // Step 3 — update
+  await tk(page).getByRole('button', { name: 'Next: what did you do?' }).click();
   await tk(page).getByRole('button', { name: 'Certificate renewed' }).click();
+  // Step 4 — template card
+  await tk(page).getByRole('button', { name: 'Next: choose a template' }).click();
+  await tk(page).locator('article', { hasText: 'VPN connectivity' }).getByRole('button', { name: 'Use template' }).click();
+  await page.waitForTimeout(400);
+  await page.screenshot({ path: join(shots, '3-templates.png') });
   const wn = await tk(page).locator('aside textarea').inputValue();
   check('generator: work notes include template + contact + actions + follow-up',
     wn.includes('Troubleshot VPN connectivity with Abel Tuter') && wn.includes('Contact via Teams') && wn.includes('Certificate renewed') && wn.includes('Follow-up:'), '\n' + wn.split('\n').map((l) => '    ' + l).join('\n'));
-  await tk(page).getByRole('button', { name: 'Comments', exact: true }).click();
+  await tk(page).getByRole('tab', { name: 'Customer reply' }).click();
   const cm = await tk(page).locator('aside textarea').inputValue();
-  check('generator: Dutch customer comment generated', cm.startsWith('Beste Abel,') && cm.includes('Met vriendelijke groet'), '\n' + cm.split('\n').map((l) => '    ' + l).join('\n'));
+  check('generator: Dutch customer comment generated', cm.startsWith('Beste Abel,') && cm.includes('Met vriendelijke groet'));
   check('generator: comment excludes internal actions', !cm.includes('Certificate renewed'));
-  await page.screenshot({ path: join(shots, '2-classic-generated.png') });
 
-  // Insert
-  await tk(page).getByRole('button', { name: 'INSERT IN TICKET' }).click();
-  await page.waitForTimeout(300);
+  // Step 6 — insert
+  await tk(page).getByRole('button', { name: 'Insert into ServiceNow' }).click();
+  await tk(page).getByRole('button', { name: 'Added to ticket' }).waitFor({ timeout: 5000 });
   const after = await page.evaluate(() => ({ wn: g_form.getValue('work_notes'), cm: g_form.getValue('comments'), vis: document.getElementById('activity-stream-work_notes-textarea').value, submits: window.__submits }));
   check('insert: work notes populated via g_form', after.wn.includes('Troubleshot VPN connectivity'));
   check('insert: additional comments populated via g_form', after.cm.startsWith('Beste Abel,'));
   check('insert: visible activity-stream textarea in sync', after.vis === after.wn);
   check('insert: ticket NOT submitted/saved', after.submits === 0);
-  await page.screenshot({ path: join(shots, '3-classic-inserted.png') });
+  check('flow: all 6 steps completed', (await shadowText(page)).includes('6 of 6 done'));
+  await page.waitForTimeout(300);
+  await page.screenshot({ path: join(shots, '4-inserted.png') });
 
-  // Bookmarklet click again toggles (hide) without reloading
   await page.evaluate(bookmarklet(['dev-test.service-now.com']));
   await page.waitForTimeout(800);
-  check('bookmarklet: second click toggles the window', !(await shadowText(page)).includes('Generated output'));
+  check('bookmarklet: second click closes the window (with animation)', !(await shadowText(page)).includes('Review & insert your notes'));
   await page.evaluate(bookmarklet(['dev-test.service-now.com']));
-  await tk(page).locator('text=Generated output').waitFor({ timeout: 5000 });
-  check('bookmarklet: third click shows it again with state kept', (await tk(page).locator('aside textarea').inputValue()).length > 0);
+  await tk(page).locator('text=Review & insert your notes').waitFor({ timeout: 5000 });
+  check('bookmarklet: third click reopens it with state kept', (await tk(page).locator('aside textarea').inputValue()).length > 0);
 
-  // Minimize / drag persistence
   await tk(page).getByRole('button', { name: 'Minimize' }).click();
-  check('window: minimize', await tk(page).getByRole('button', { name: 'Restore' }).isVisible());
-  await tk(page).getByRole('button', { name: 'Restore' }).click();
+  check('window: minimize', await tk(page).getByRole('button', { name: 'Restore window' }).isVisible());
+  await tk(page).getByRole('button', { name: 'Restore window' }).click();
   const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('itsmtk.v1.window')));
   check('window: geometry persisted', !!saved?.geom?.w);
+
+  // Dutch interface
+  await tk(page).getByRole('button', { name: 'Settings' }).click();
+  await tk(page).getByRole('button', { name: 'Toolkit language' }).click();
+  await tk(page).getByRole('option', { name: 'Nederlands' }).first().click();
+  await tk(page).getByRole('button', { name: 'Contact opnemen' }).waitFor({ timeout: 3000 });
+  check('i18n: interface switches to Dutch', (await shadowText(page)).includes('Instellingen'));
+  await page.waitForTimeout(300);
+  await page.screenshot({ path: join(shots, '5-settings-nl.png') });
   await ctx.close();
 }
 
@@ -169,36 +188,35 @@ const tk = (page) => page.locator('#itsm-toolkit-host');
   await page.evaluate(bookmarklet(['dev-test.service-now.com']));
   await tk(page).locator('text=INC0012345').first().waitFor({ timeout: 10000 });
   const t = await shadowText(page);
-  check('next experience: ticket detected through shadow DOM + iframe', t.includes('INC0012345') && t.includes('GlideForm'));
-  check('next experience: UI kind recognised', t.includes('Next Experience'));
-  await page.screenshot({ path: join(shots, '4-polaris.png') });
+  check('next experience: ticket detected through shadow DOM + iframe (GlideForm)', t.includes('INC0012345') && t.includes('Read from the ticket form'));
   await ctx.close();
 }
 
-// ───────────── 3. Workspace (REST only, compose box in shadow DOM) ─────────────
+// ───────────── 3. Workspace (REST only, compose box in shadow DOM), Dutch browser, dark ─────────────
 {
   const { page, ctx } = await newPage();
   await page.emulateMedia({ colorScheme: 'dark' });
   await page.goto(`${SN}/now/sow/record/incident/${SYS_ID}`);
+  await page.evaluate(() => localStorage.setItem('itsmtk.v1.settings', JSON.stringify({ theme: 'dark', uiLanguage: 'en' })));
   await page.evaluate(bookmarklet(['dev-test.service-now.com']));
   await tk(page).locator('text=INC0012345').first().waitFor({ timeout: 10000 });
   const t = await shadowText(page);
-  check('workspace: ticket detected via URL + REST', t.includes('Workspace') && t.includes('REST'));
-  await tk(page).getByRole('button', { name: 'Contact & Follow-up' }).click();
-  await tk(page).getByRole('button', { name: /Telephone/ }).first().click();
-  await tk(page).getByRole('button', { name: 'No answer', exact: true }).click();
-  await tk(page).getByRole('button', { name: 'INSERT IN TICKET' }).click();
-  await page.waitForTimeout(300);
+  check('workspace: ticket detected via URL + REST', t.includes('Read from ServiceNow'));
+  await tk(page).getByRole('button', { name: 'Contact User' }).click();
+  await tk(page).getByRole('radio', { name: /Telephone/ }).click();
+  await tk(page).getByRole('button', { name: 'No answer' }).click();
+  await tk(page).getByRole('button', { name: 'Insert into ServiceNow' }).click();
+  await page.waitForTimeout(600);
   const model = await page.evaluate(() => window.__wsModel || {});
   check('workspace: work notes inserted into shadow-DOM textarea (framework saw input event)', (model['Work notes'] || '').includes('Contact via Telephone'));
-  const msg = await shadowText(page);
-  check('workspace: comments fallback explains how to switch compose box', msg.includes('Switch the compose box'));
-  await tk(page).getByRole('button', { name: 'Advice' }).click();
-  await tk(page).locator('text=KB0010042').waitFor({ timeout: 5000 });
-  check('advice: local rules matched VPN + same-instance KB search', (await shadowText(page)).includes('VPN / remote access'));
+  check('workspace: friendly guidance when the reply box shows work notes', (await shadowText(page)).includes('switch the reply box'));
+  await tk(page).getByRole('button', { name: 'AI Assistant' }).click();
+  await tk(page).locator('text=Troubleshooting GlobalProtect VPN disconnects').waitFor({ timeout: 5000 });
+  check('assistant: local rules matched VPN + same-instance KB search', (await shadowText(page)).includes('VPN / remote access'));
   await page.waitForTimeout(400);
-  await page.screenshot({ path: join(shots, '5-workspace-dark-advice.png') });
-  await tk(page).getByRole('button', { name: 'Assets' }).click();
+  await page.screenshot({ path: join(shots, '6-workspace-dark-assistant.png') });
+  await tk(page).getByRole('button', { name: 'Ticket', exact: true }).click();
+  await tk(page).getByRole('button', { name: /User's devices/ }).click();
   await tk(page).locator('text=Dell Latitude 7440').waitFor({ timeout: 5000 });
   check('assets: user hardware listed', true);
   await ctx.close();
@@ -224,10 +242,10 @@ const tk = (page) => page.locator('#itsm-toolkit-host');
   const { page: p2, ctx: c2, restCalls } = await newPage();
   await p2.goto(`${SN}/incident.do?sys_id=${SYS_ID}`);
   await p2.evaluate(bookmarklet(['*.service-now.com']));
-  await tk(p2).locator('text=Authorize this ServiceNow instance?').waitFor({ timeout: 10000 });
+  await tk(p2).locator('text=Use the toolkit on this ServiceNow site?').waitFor({ timeout: 10000 });
   check('security: wildcard install asks for one-time authorization before reading', restCalls.length === 0);
-  await p2.screenshot({ path: join(shots, '6-authorize.png') });
-  await tk(p2).getByRole('button', { name: /Authorize dev-test/ }).click();
+  await p2.screenshot({ path: join(shots, '7-authorize.png') });
+  await tk(p2).getByRole('button', { name: /Yes, allow dev-test/ }).click();
   await tk(p2).locator('text=INC0012345').first().waitFor({ timeout: 10000 });
   check('security: after authorization the ticket is scanned', true);
   await ctx.close();

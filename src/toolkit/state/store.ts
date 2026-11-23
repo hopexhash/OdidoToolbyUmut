@@ -8,7 +8,8 @@ import { storage } from '../core/storage';
 import { DEFAULT_TEMPLATES } from '../core/templates/defaults';
 import type { Template } from '../core/templates/engine';
 
-export type TabId = 'ticket' | 'contact' | 'update' | 'recent' | 'advice' | 'assets' | 'hardware' | 'settings';
+export type TabId = 'ticket' | 'contact' | 'update' | 'templates' | 'assistant' | 'settings';
+const TAB_IDS: TabId[] = ['ticket', 'contact', 'update', 'templates', 'assistant', 'settings'];
 
 export interface RecentTicket {
   number: string;
@@ -21,7 +22,8 @@ export interface RecentTicket {
 export interface Toast {
   id: number;
   kind: 'success' | 'error' | 'info';
-  text: string;
+  title: string;
+  text?: string;
 }
 
 interface State {
@@ -35,8 +37,11 @@ interface State {
   recent: RecentTicket[];
   recentTemplates: string[];
   toasts: Toast[];
+  /** Incremented to draw attention to the output panel. */
+  outputPulse: number;
 
   setTab(t: TabId): void;
+  pulseOutput(): void;
   updateSettings(patch: Partial<Settings>): void;
   rescan(): Promise<void>;
   patchDraft(fn: (d: Draft) => void): void;
@@ -46,7 +51,7 @@ interface State {
   deleteTemplate(id: string): void;
   selectTemplate(id: string | null): void;
   clearRecent(): void;
-  toast(kind: Toast['kind'], text: string): void;
+  toast(kind: Toast['kind'], title: string, text?: string): void;
   dismissToast(id: number): void;
 }
 
@@ -65,7 +70,8 @@ export const useStore = create<State>((set, get) => {
     scanning: false,
     draftKey: 'manual',
     draft: emptyDraft(settings.language),
-    tab: storage.get<TabId>('tab', 'ticket'),
+    tab: TAB_IDS.includes(storage.get<TabId>('tab', 'ticket')) ? storage.get<TabId>('tab', 'ticket') : 'ticket',
+    outputPulse: 0,
     recent: storage.get<RecentTicket[]>('recent', []),
     recentTemplates: storage.get<string[]>('recentTemplates', []),
     toasts: [],
@@ -73,6 +79,9 @@ export const useStore = create<State>((set, get) => {
     setTab(t) {
       set({ tab: t });
       storage.set('tab', t);
+    },
+    pulseOutput() {
+      set({ outputPulse: get().outputPulse + 1 });
     },
 
     updateSettings(patch) {
@@ -91,7 +100,8 @@ export const useStore = create<State>((set, get) => {
         const patch: Partial<State> = { snapshot: snap };
         if (key !== get().draftKey) {
           patch.draftKey = key;
-          patch.draft = storage.session.get<Draft | null>(`draft.${key}`, null) || emptyDraft(settings.language);
+          const saved = storage.session.get<Draft | null>(`draft.${key}`, null);
+          patch.draft = saved ? { ...emptyDraft(settings.language), ...saved } : emptyDraft(settings.language);
         }
         // Recent tickets (number + short description only)
         if (settings.keepHistory && snap.fields.number && snap.sysId && snap.table) {
@@ -108,7 +118,7 @@ export const useStore = create<State>((set, get) => {
         }
         set(patch as State);
       } catch (e) {
-        get().toast('error', `Scan failed: ${(e as Error).message}`);
+        get().toast('error', 'Could not read the ticket', (e as Error).message);
       } finally {
         set({ scanning: false });
       }
@@ -159,9 +169,9 @@ export const useStore = create<State>((set, get) => {
       set({ recent: [], recentTemplates: [] });
     },
 
-    toast(kind, text) {
+    toast(kind, title, text) {
       const id = ++toastSeq;
-      set({ toasts: [...get().toasts, { id, kind, text }].slice(-4) });
+      set({ toasts: [...get().toasts, { id, kind, title, text }].slice(-3) });
       window.setTimeout(() => get().dismissToast(id), kind === 'error' ? 9000 : 4500);
     },
     dismissToast(id) {
@@ -183,5 +193,25 @@ export function useDerived() {
     autoWork,
     autoComment,
     completion: completion(snapshot, draft, template),
+    steps: computeSteps(snapshot, draft, template, draft.workNotesManual ?? autoWork),
   };
+}
+
+export interface Step {
+  id: number;
+  label: string;
+  done: boolean;
+  tab?: TabId;
+}
+
+/** The guided 6-step flow shown under the header. */
+export function computeSteps(snapshot: TicketSnapshot | null, draft: Draft, template: Template | null, notes: string): Step[] {
+  return [
+    { id: 1, label: 'Review ticket', tab: 'ticket', done: !!snapshot?.fields.number },
+    { id: 2, label: 'Contact method', tab: 'contact', done: !!draft.contact.method && !!draft.contact.outcome },
+    { id: 3, label: 'What you did', tab: 'update', done: draft.update.actions.length > 0 || !!draft.update.updateText.trim() },
+    { id: 4, label: 'Choose template', tab: 'templates', done: !!template },
+    { id: 5, label: 'Review notes', done: draft.reviewed && !!notes.trim() },
+    { id: 6, label: 'Insert', done: !!draft.insertedAt },
+  ];
 }

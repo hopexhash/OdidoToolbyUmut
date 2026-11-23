@@ -4,6 +4,7 @@ import { App } from './ui/App';
 import { HOST_ID } from './core/sn/dom';
 import { VERSION } from './boot';
 import { visibility } from './ui/visibility';
+import { registerFonts } from './fonts';
 
 /**
  * Entry point of the injected bundle. Mounts the toolkit into an isolated
@@ -24,6 +25,7 @@ declare global {
 }
 
 function mount(): Api {
+  registerFonts();
   document.getElementById(HOST_ID)?.remove();
   const host = document.createElement('div');
   host.id = HOST_ID;

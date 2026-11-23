@@ -1,10 +1,9 @@
 import { createRoot } from 'react-dom/client';
+import '@fontsource/poppins/400.css';
+import '@fontsource/poppins/500.css';
+import '@fontsource/poppins/600.css';
+import '@fontsource/poppins/700.css';
 import './install.css';
 import { InstallPage } from './InstallPage';
-
-const mq = window.matchMedia('(prefers-color-scheme: dark)');
-const apply = () => document.documentElement.classList.toggle('tk-dark', mq.matches);
-apply();
-mq.addEventListener('change', apply);
 
 createRoot(document.getElementById('root')!).render(<InstallPage />);

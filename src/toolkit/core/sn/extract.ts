@@ -228,13 +228,13 @@ export async function extractTicket(opts: ExtractOptions, ctx: SnContext = detec
       const status = e instanceof SnRestError ? e.status : 0;
       snap.warnings.push(
         status === 401 || status === 403
-          ? `REST API access denied (${status}). Using on-page data only — ask your ServiceNow admin about the snc_platform_rest_api_access role or configure DOM selectors.`
-          : `REST API unavailable: ${(e as Error).message}`,
+          ? 'Some details could not be loaded because your ServiceNow account has limited access. The basic ticket information is still available.'
+          : 'Some details could not be loaded from ServiceNow. The basic ticket information is still available.',
       );
       rest = null;
     }
   } else if (!ctx.sysId) {
-    snap.warnings.push('No saved ticket detected on this page. Open an existing ticket (or use manual entry).');
+    snap.warnings.push('No saved ticket was found on this page. Open an existing ticket and click the refresh button.');
   }
 
   // 3) DOM selectors
@@ -285,6 +285,6 @@ export async function extractTicket(opts: ExtractOptions, ctx: SnContext = detec
     if (sla.status === 'fulfilled') snap.sla = sla.value;
   }
 
-  if (!snap.fields.number) snap.warnings.push('Ticket number not found. Check Settings → ServiceNow → Field mapping.');
+  if (!snap.fields.number) snap.warnings.push('The ticket number could not be found. You can type the details yourself, or ask your admin to check Settings → Field mapping.');
   return snap;
 }

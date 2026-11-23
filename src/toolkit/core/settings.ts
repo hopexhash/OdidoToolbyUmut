@@ -19,9 +19,12 @@ export interface AiSettings {
 }
 
 export interface Settings {
+  /** Language of the toolkit interface. */
+  uiLanguage: 'en' | 'nl';
   technicianName: string;
   department: string;
   signature: string;
+  /** Default language of customer-facing comments. */
   language: Lang;
   theme: Theme;
   dateFormat: DateFormat;
@@ -37,11 +40,18 @@ export interface Settings {
 }
 
 export const DEFAULT_SETTINGS: Settings = {
+  uiLanguage: (() => {
+    try {
+      return (navigator.language || '').toLowerCase().startsWith('nl') ? 'nl' : 'en';
+    } catch {
+      return 'en';
+    }
+  })(),
   technicianName: '',
   department: 'Workplace Services',
   signature: '',
   language: 'nl',
-  theme: 'system',
+  theme: 'light',
   dateFormat: 'dd-MM-yyyy',
   allowedDomains: [],
   useRestApi: true,

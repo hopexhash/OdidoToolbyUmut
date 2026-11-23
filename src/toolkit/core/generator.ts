@@ -85,12 +85,12 @@ export function generateWorkNotes(snap: TicketSnapshot | null, draft: Draft, set
   const h = draft.hardware;
   if (h.include) {
     const hw = [
-      `Hardware (${h.requestType}):`,
+      `Hardware${h.requestType ? ` (${h.requestType})` : ''}:`,
       bullet(`Device: ${[h.deviceType, h.model].filter(Boolean).join(' – ') || '-'}`),
       h.serial && bullet(`Serial (new): ${h.serial}`),
       h.assetTag && bullet(`Asset tag: ${h.assetTag}`),
       h.oldSerial && bullet(`Serial (old / return): ${h.oldSerial}`),
-      bullet(`Delivery: ${h.deliveryMethod}${h.carrier ? ` (${h.carrier})` : ''}`),
+      h.deliveryMethod && bullet(`Delivery: ${h.deliveryMethod}${h.carrier ? ` (${h.carrier})` : ''}`),
       h.podReference && bullet(`POD / tracking reference: ${h.podReference}`),
       h.deliveryDate && bullet(`Delivery date: ${formatIso(h.deliveryDate, settings.dateFormat)}${h.timeSlot ? ` ${h.timeSlot}` : ''}`),
       h.address && bullet(`Delivery address: ${h.address}`),
@@ -168,7 +168,7 @@ export function generateComment(snap: TicketSnapshot | null, draft: Draft, setti
 
   const h = draft.hardware;
   if (h.include && (h.deliveryDate || h.podReference)) {
-    body.push(L.hw(h.deliveryMethod, h.deliveryDate ? formatIso(h.deliveryDate, settings.dateFormat) : '', h.podReference));
+    body.push(L.hw(h.deliveryMethod || (lang === 'nl' ? 'onze bezorgdienst' : 'our delivery service'), h.deliveryDate ? formatIso(h.deliveryDate, settings.dateFormat) : '', h.podReference));
   }
 
   const pending = PENDING_REASONS.find((p) => p.id === c.pendingReason);

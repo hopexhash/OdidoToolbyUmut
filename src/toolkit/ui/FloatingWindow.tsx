@@ -14,14 +14,14 @@ interface WinState {
   maximized: boolean;
 }
 
-const MIN_W = 560;
-const MIN_H = 420;
+const MIN_W = 640;
+const MIN_H = 480;
 
 function defaults(): WinState {
   const vw = window.innerWidth;
   const vh = window.innerHeight;
-  const w = Math.min(1040, vw - 32);
-  const h = Math.min(720, vh - 32);
+  const w = Math.min(1180, vw - 32);
+  const h = Math.min(780, vh - 32);
   return { geom: { x: Math.max(16, vw - w - 24), y: Math.max(16, Math.min(64, vh - h - 16)), w, h }, minimized: false, maximized: false };
 }
 
@@ -44,7 +44,7 @@ export interface WindowControls {
   width: number;
 }
 
-export function FloatingWindow({ children, minimizedView }: { children: (c: WindowControls) => ReactNode; minimizedView: (c: WindowControls) => ReactNode }) {
+export function FloatingWindow({ children, minimizedView, closing }: { children: (c: WindowControls) => ReactNode; minimizedView: (c: WindowControls) => ReactNode; closing?: boolean }) {
   const [st, setSt] = useState<WinState>(() => {
     const saved = storage.get<WinState | null>('window', null);
     return saved?.geom ? { ...saved, geom: clamp(saved.geom) } : defaults();
@@ -136,7 +136,7 @@ export function FloatingWindow({ children, minimizedView }: { children: (c: Wind
 
   if (st.minimized) {
     return (
-      <div className="fixed animate-tk-pop" style={{ left: Math.max(8, st.geom.x + st.geom.w - 340), top: st.geom.y }}>
+      <div className={cx('fixed', closing ? 'animate-tk-out' : 'animate-tk-pop')} style={{ left: Math.max(8, st.geom.x + st.geom.w - 340), top: st.geom.y }}>
         {minimizedView(controls)}
       </div>
     );
@@ -149,7 +149,8 @@ export function FloatingWindow({ children, minimizedView }: { children: (c: Wind
       role="dialog"
       aria-label="ITSM Toolkit"
       className={cx(
-        'fixed flex animate-tk-pop flex-col overflow-hidden rounded-2xl border border-ink-200/80 bg-ink-50 shadow-window dark:border-ink-800 dark:bg-ink-950',
+        'fixed flex flex-col overflow-hidden rounded-[20px] bg-ink-50 shadow-window dark:bg-ink-950 dark:ring-1 dark:ring-ink-800',
+        closing ? 'animate-tk-out' : 'animate-tk-pop',
       )}
       style={style}
     >

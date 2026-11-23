@@ -44,10 +44,10 @@ function tryGForm(ctx: SnContext, kind: JournalKind, text: string, opts: InsertO
       syncVisibleTextarea(ctx, kind, next, opts);
       const now = String(g.getValue(f) || '');
       if (now.replace(/\r/g, '') === next.replace(/\r/g, '')) {
-        return { kind, ok: true, method: 'g_form', message: `Inserted into ${f} via GlideForm. Review and save the ticket manually.` };
+        return { kind, ok: true, method: 'g_form', message: 'Filled in. Review the ticket and click Save.' };
       }
     } catch (e) {
-      return { kind, ok: false, method: 'g_form', message: `GlideForm rejected the value: ${(e as Error).message}` };
+      return { kind, ok: false, method: 'g_form', message: 'ServiceNow did not accept the text.' };
     }
   }
   return null;
@@ -100,9 +100,9 @@ function tryDom(ctx: SnContext, kind: JournalKind, text: string, opts: InsertOpt
   const next = combine(ta.value, text, opts.mode);
   setNativeValue(ta, next);
   if (ta.value === next) {
-    return { kind, ok: true, method: 'dom', message: 'Inserted into the visible journal field. Review and save the ticket manually.' };
+    return { kind, ok: true, method: 'dom', message: 'Filled in. Review the ticket and click Save.' };
   }
-  return { kind, ok: false, method: 'dom', message: 'The field did not accept the value.' };
+  return { kind, ok: false, method: 'dom', message: 'ServiceNow did not accept the text.' };
 }
 
 /** Detects Workspace's single compose box that toggles between work notes and comments. */
@@ -116,7 +116,7 @@ function otherJournalVisible(ctx: SnContext, kind: JournalKind, opts: InsertOpti
  * anything — the technician reviews and saves the ticket.
  */
 export function insertJournal(kind: JournalKind, text: string, opts: InsertOptions, ctx: SnContext = detectContext()): InsertResult {
-  if (!text.trim()) return { kind, ok: false, method: 'none', message: 'Nothing to insert.' };
+  if (!text.trim()) return { kind, ok: false, method: 'none', message: 'Nothing to insert yet.' };
   const g = tryGForm(ctx, kind, text, opts);
   if (g?.ok) return g;
   const d = tryDom(ctx, kind, text, opts);
@@ -128,9 +128,9 @@ export function insertJournal(kind: JournalKind, text: string, opts: InsertOptio
       method: 'none',
       message:
         kind === 'comments'
-          ? 'Only the work-notes box is visible. Switch the compose box to "Additional comments" (customer visible) and try again, or paste from the clipboard.'
-          : 'Only the additional-comments box is visible. Switch the compose box to "Work notes" and try again, or paste from the clipboard.',
+          ? 'In the ticket, switch the reply box to "Additional comments (Customer visible)" and try again — or paste the text with Ctrl+V.'
+          : 'In the ticket, switch the reply box to "Work notes" and try again — or paste the text with Ctrl+V.',
     };
   }
-  return g || d || { kind, ok: false, method: 'none', message: 'No journal field found on this page.' };
+  return g || d || { kind, ok: false, method: 'none', message: 'The notes field could not be found on this page. Open the ticket form and try again — or paste the text with Ctrl+V.' };
 }

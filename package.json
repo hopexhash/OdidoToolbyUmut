@@ -1,8 +1,8 @@
 {
   "name": "itsm-toolkit",
   "private": true,
-  "version": "1.0.0",
-  "description": "ITSM Toolkit \u2013 ServiceNow productivity overlay delivered as a bookmarklet",
+  "version": "1.1.0",
+  "description": "ITSM Toolkit – ServiceNow productivity overlay delivered as a bookmarklet",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -22,6 +22,7 @@
     "zustand": "^4.5.5"
   },
   "devDependencies": {
+    "@fontsource/poppins": "^5.1.0",
     "@types/node": "^22.9.0",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",

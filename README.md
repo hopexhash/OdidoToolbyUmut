@@ -23,7 +23,9 @@ Bookmark click ─► bookmarklet (<1 KB): domain allow-list check
 | **Insert in ticket** | Fills work notes / additional comments via `g_form.setValue` (classic & Next Experience) or the visible compose textarea (Workspace, through shadow DOM, with framework-compatible input events), verifies the value, and falls back to the clipboard. **Never saves or submits.** |
 | **Advice** | Offline rule-based troubleshooting, knowledge search in *your own* instance, optional Claude AI (off by default, consent + key required, PII redaction). Suggestions are kept separate from performed actions. |
 | **Assets / Hardware & POD** | User's hardware (`alm_hardware`, `cmdb_ci_hardware`), CI details, device swap / delivery / proof-of-delivery block for notes. |
-| **Window** | Draggable, resizable, minimise / maximise / close, remembers position, light & dark theme. |
+| **Guided flow** | Six clear steps (review ticket → contact → what you did → template → review notes → insert) with a progress bar and a “Next” button on every page. |
+| **Design** | Poppins typography (embedded, no external font requests), light theme by default plus dark theme, English and Dutch interface, keyboard accessible, tooltips on every icon button. |
+| **Window** | Draggable, resizable, minimise / maximise / close with smooth animations, remembers position. |
 
 ## Quick start (development)
 
